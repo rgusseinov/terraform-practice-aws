@@ -25,7 +25,7 @@ resource "aws_subnet" "my_subnet" {
   }
 }
 
-resource "aws_network_interface" "foo" {
+resource "aws_network_interface" "my_network_interface" {
   subnet_id   = aws_subnet.my_subnet.id
   private_ips = ["172.16.10.100"]
 
@@ -34,7 +34,7 @@ resource "aws_network_interface" "foo" {
   }
 }
 
-resource "aws_instance" "foo" {
+resource "aws_instance" "my_instance" {
   ami = var.ami_id
   instance_type = var.instance_type
   subnet_id = aws_subnet.my_subnet.id
@@ -44,20 +44,24 @@ resource "aws_instance" "foo" {
   
   key_name = "my-new-key"
 
+  count = 2
+
   credit_specification {
     cpu_credits = "unlimited"
   }
 
-
   user_data = <<-EOF
                   #!/bin/bash
-                  sudo dnf install -y nginx
-                  sudo systemctl enable nginx
-                  sudo systemctl start nginx
+                  sudo dnf install -y httpd php
+                  sudo systemctl enable httpd
+                  sudo systemctl start httpd
+                  echo "<?php echo 'Hello world!'; ?>" | sudo tee /var/www/html/index.php > /dev/null
+
+                  sudo systemctl restart httpd
                   EOF
 
   tags = {
-    Name = "HelloWorld"
+    Name = count.index == 0 ? "dev" : "staging"
   }
 }
 
