@@ -96,15 +96,6 @@ resource "aws_security_group" "ssh" {
   }
 }
 
-resource "aws_s3_bucket" "my_bucket" {
-  bucket = "terraform-state-124578"
-
-  tags = {
-    Name        = "My bucket"
-    Environment = "Dev"
-  }
-}
-
 resource "aws_internet_gateway" "gw" {
   vpc_id = aws_vpc.my_vpc.id
 
